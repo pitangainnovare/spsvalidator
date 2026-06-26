@@ -32,7 +32,7 @@ def run_validation(
     if not filename.lower().endswith(".zip"):
         raise ValueError(zip_only_message or "Only SPS .zip files are supported.")
     with tempfile.TemporaryDirectory(prefix="spsvalidator-") as temp_dir:
-        zip_path = os.path.join(temp_dir, Path(filename).name)
+        zip_path = os.path.join(temp_dir, "package.zip")
         uploaded_file.save(zip_path)
         result = validate_sps_zip(zip_path)
         rows = result["rows"]
