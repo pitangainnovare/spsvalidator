@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="{{ t.html_lang }}">
   <head>
@@ -130,9 +131,10 @@
             <tr>
               <th>{{ t.date }}</th>
               <th>{{ t.package }}</th>
-              <th>{{ t.status }}</th>
               <th>{{ t.xmls }}</th>
-              <th>{{ t.issues }}</th>
+              <th>{{ t.critical }}</th>
+              <th>{{ t.error }}</th>
+              <th>{{ t.warning }}</th>
               <th>{{ t.exceptions }}</th>
               <th>{{ t.download_csv }}</th>
             </tr>
@@ -142,9 +144,10 @@
             <tr>
               <td><a href="/?history_id={{ item.id }}">{{ item.validated_at }}</a></td>
               <td>{{ item.package_name }}</td>
-              <td class="status-{{ item.status }}">{{ item.status }}</td>
               <td>{{ item.xml_count }}</td>
-              <td>{{ item.issues_count }}</td>
+              <td>{{ item.critical_count }}</td>
+              <td>{{ item.error_count }}</td>
+              <td>{{ item.warning_count }}</td>
               <td>{{ item.exceptions_count }}</td>
               <td>
                 <a
@@ -168,15 +171,7 @@
       {% if latest_result %}
       <section class="panel">
         <h2>{{ t.validation_result }}</h2>
-        <p>
-          <strong>{{ t.status }}:</strong>
-          <span class="status-{{ latest_result.status }}">{{ latest_result.status }}</span>
-          <strong>| {{ t.xmls }}:</strong> {{ latest_result.xml_count }}
-          <strong>| {{ t.issues }}:</strong> {{ latest_result.issues_count }}
-          <strong>| {{ t.exceptions }}:</strong> {{ latest_result.exceptions_count }}
-        </p>
         <div class="articles">
-          <h3>{{ t.articles_found }}</h3>
           <table>
             <thead>
               <tr>
@@ -203,71 +198,6 @@
           </table>
         </div>
 
-        <h3>{{ t.validation_issues }}</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>group</th>
-              <th>title</th>
-              <th>parent</th>
-              <th>parent_id</th>
-              <th>parent_article_type</th>
-              <th>item</th>
-              <th>sub_item</th>
-              <th>attribute</th>
-              <th>validation_type</th>
-              <th>response</th>
-              <th>expected_value</th>
-              <th>got_value</th>
-              <th>advice</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for row in latest_result.rows %}
-            <tr>
-              <td>{{ row.group }}</td>
-              <td>{{ row.title }}</td>
-              <td>{{ row.parent }}</td>
-              <td>{{ row.parent_id }}</td>
-              <td>{{ row.parent_article_type }}</td>
-              <td>{{ row.item }}</td>
-              <td>{{ row.sub_item }}</td>
-              <td>{{ row.attribute }}</td>
-              <td>{{ row.validation_type }}</td>
-              <td>{{ row.response }}</td>
-              <td>{{ row.expected_value }}</td>
-              <td>{{ row.got_value }}</td>
-              <td>{{ row.advice }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-
-        <h3>{{ t.exceptions }}</h3>
-        {% if latest_result.exceptions %}
-        <table>
-          <thead>
-            <tr>
-              <th>response</th>
-              <th>title</th>
-              <th>group</th>
-              <th>{{ t.detail }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for exception in latest_result.exceptions %}
-            <tr>
-              <td>{{ exception.response }}</td>
-              <td>{{ exception.title }}</td>
-              <td>{{ exception.group }}</td>
-              <td>{{ exception.got_value or exception.detail or exception | tojson }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% else %}
-        <p class="muted">{{ t.no_exceptions }}</p>
-        {% endif %}
       </section>
       {% endif %}
     </main>
