@@ -1,10 +1,13 @@
 """
 Verifica que validate_sps_zip exercita todos os 36 grupos de validação
-definidos no packtools 4.16.5 xml_validator.py.
+definidos no packtools 4.16.6 xml_validator.py.
 
-Duas camadas de testes:
-  1. Cobertura  — cada função validate_* é chamada por validate_sps_zip.
-  2. Comportamento — grupos novos no 4.16.x detectam problemas em XML real.
+Três camadas de testes:
+  1. Versão       — packtools 4.16.6 está instalada.
+  2. Cobertura    — cada função validate_* é chamada por validate_sps_zip.
+  3. Comportamento — grupos novos no 4.16.x detectam problemas em XML real.
+  4. Regressão    — bugs corrigidos no packtools#1230 (TypeError em validate_secs,
+                    validate_lists e validate_response) não regridem.
 """
 from __future__ import annotations
 
@@ -320,3 +323,92 @@ def test_abstract_sem_lang_reporta_issue(tmp_path):
     xml = _article(extra_meta="<abstract><p>Resumo sem lang.</p></abstract>")
     result = validate_sps_zip(_make_zip(tmp_path, xml))
     assert "abstract" in _rows_groups(result)
+
+
+# ---------------------------------------------------------------------------
+# 3. Versão do packtools
+# ---------------------------------------------------------------------------
+
+
+def test_packtools_version():
+    """packtools 4.16.6 deve estar instalada."""
+    import packtools
+
+    assert packtools.__version__ == "4.16.6"
+
+
+# ---------------------------------------------------------------------------
+# 4. Regressão packtools#1230 — TypeError em validate_secs, validate_lists
+#    e validate_response quando as funções não tinham `yield from`.
+#
+#    Antes do fix, essas funções retornavam None (sem yield from), causando
+#    TypeError: 'NoneType' object is not iterable no orquestrador.
+#    Agora devem produzir resultados estruturados via rows ou exceptions.
+# ---------------------------------------------------------------------------
+
+
+def test_regression_1230_validate_secs_nao_levanta_typeerror(tmp_path):
+    """Regressão packtools#1230: validate_secs não deve lançar TypeError.
+
+    <sec> sem <title> exercita a validação; antes do fix o resultado era None
+    e o orquestrador lançava TypeError ao iterar.
+    """
+    xml = _article(body="<sec><p>Texto sem titulo.</p></sec>")
+    result = validate_sps_zip(_make_zip(tmp_path, xml))
+    assert "sec" in _all_groups(result), (
+        "validate_secs retornou None (sem yield from) — regressão do packtools#1230"
+    )
+
+
+def test_regression_1230_validate_lists_nao_levanta_typeerror(tmp_path):
+    """Regressão packtools#1230: validate_lists não deve lançar TypeError.
+
+    <list> sem @list-type exercita a validação; antes do fix o resultado era
+    None e o orquestrador lançava TypeError ao iterar.
+    """
+    xml = _article(
+        body="""
+        <sec>
+          <title>Section</title>
+          <list>
+            <list-item><p>Item sem list-type.</p></list-item>
+          </list>
+        </sec>"""
+    )
+    result = validate_sps_zip(_make_zip(tmp_path, xml))
+    assert "list" in _all_groups(result), (
+        "validate_lists retornou None (sem yield from) — regressão do packtools#1230"
+    )
+
+
+def test_regression_1230_validate_response_nao_levanta_typeerror(tmp_path):
+    """Regressão packtools#1230: validate_response não deve lançar TypeError.
+
+    Um artigo com <response> exercita validate_response; antes do fix o
+    resultado era None e o orquestrador lançava TypeError ao iterar.
+    Aqui o XML é válido, portanto o grupo só aparece em rows se houver issue
+    ou em exceptions se houver erro — a ausência de TypeError já é suficiente.
+    """
+    xml = _article(
+        body="""
+        <sec><title>Section</title><p>Text.</p></sec>
+        <response response-type="reply" xml:lang="pt" id="r01">
+          <front-stub>
+            <title-group>
+              <article-title>Reply title</article-title>
+            </title-group>
+          </front-stub>
+          <body><sec><title>Reply body</title><p>Reply.</p></sec></body>
+        </response>"""
+    )
+    # Se TypeError ocorrer dentro de validate_sps_zip ele vira exception com
+    # response="exception". A ausência disso — ou a presença de resultados
+    # estruturados — confirma que o fix está ativo.
+    result = validate_sps_zip(_make_zip(tmp_path, xml))
+    typeerrors = [
+        e for e in result["exceptions"]
+        if e.get("group") == "response" and "NoneType" in e.get("error", "")
+    ]
+    assert not typeerrors, (
+        "validate_response lançou TypeError — regressão do packtools#1230"
+    )
