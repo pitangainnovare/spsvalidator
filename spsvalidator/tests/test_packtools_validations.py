@@ -331,10 +331,10 @@ def test_abstract_sem_lang_reporta_issue(tmp_path):
 
 
 def test_packtools_version():
-    """packtools 4.16.6 deve estar instalada."""
+    """packtools 4.16.7 deve estar instalada."""
     import packtools
 
-    assert packtools.__version__ == "4.16.6"
+    assert packtools.__version__ == "4.16.7"
 
 
 # ---------------------------------------------------------------------------
