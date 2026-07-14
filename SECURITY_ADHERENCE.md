@@ -8,13 +8,15 @@ Este documento declara como este repositório atende às diretrizes da **NSI.04 
 
 | Campo | Valor |
 |---|---|
-| Nome do sistema | *(ex: OJS/PKP, SciELO Data, ARQUIWEB...)* |
+| Nome do sistema | SPS Validator |
 | Responsável técnico | |
-| Classificação da informação tratada | Pública / Interna / Restrita / Sigilosa |
-| Dados pessoais tratados (LGPD)? | Sim / Não — se sim, quais categorias |
-| Ambiente de produção | *(ex: Kubernetes on-prem, Rocky Linux 9...)* |
+| Classificação da informação tratada | Pública / Restrita |
+| Dados pessoais tratados (LGPD)? | N/A |
+| Ambiente de produção | Desktop |
 
 ## 2. Controles de segurança aplicados (NSI.04 §3)
+
+Não se aplicam
 
 - [ ] Segregação entre ambientes de dev, teste e produção (§3.1)
 - [ ] Controle de acesso ao banco de dados com permissões mínimas necessárias, sem uso de usuário root (§3.2)
@@ -38,19 +40,19 @@ Critério de aprovação do gate: *(ex: zero vulnerabilidades críticas/altas se
 
 ## 4. Ciclo de vida (NSI.04 §4)
 
-- [ ] Requisitos de segurança levantados junto às partes interessadas (§4.1)
-- [ ] Riscos de segurança avaliados no planejamento (§4.2)
+- [x] Requisitos de segurança levantados junto às partes interessadas (§4.1)
+- [x] Riscos de segurança avaliados no planejamento (§4.2)
 - [ ] Separação de ambientes validada na análise (§4.3)
-- [ ] Revisão de código por membro qualificado antes do merge (§4.4)
-- [ ] Testes com dados fictícios/anonimizados, ambiente de teste isolado (§4.5)
+- [x] Revisão de código por membro qualificado antes do merge (§4.4)
+- [x] Testes com dados fictícios/anonimizados, ambiente de teste isolado (§4.5)
 - [ ] Plano de implantação com procedimento de rollback (§4.6)
 - [ ] Processo de manutenção com aplicação de patches e gestão de mudanças — GMUD (§4.7)
 
 ## 5. Desenvolvimento terceirizado (se aplicável, NSI.04 §6)
 
-- [ ] Contrato prevê cláusulas de confidencialidade e propriedade intelectual
-- [ ] Acesso do terceiro limitado ao estritamente necessário
-- [ ] Revisões de código e auditorias técnicas realizadas
+- [x] Contrato prevê cláusulas de confidencialidade e propriedade intelectual
+- [x] Acesso do terceiro limitado ao estritamente necessário
+- [x] Revisões de código e auditorias técnicas realizadas
 
 ## 6. Exceções e riscos aceitos
 
