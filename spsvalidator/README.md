@@ -50,13 +50,15 @@ Validation results are persisted locally and can be reopened later in the UI.
   - Portuguese (`pt`, default)
   - English (`en`)
   - Spanish (`es`)
-- Language persistence via cookie.
+- Automatic language selection from the operating system in desktop mode or
+  from the browser preference in browser mode.
 - Build metadata footer (development/runtime or macOS build version label).
 - Cross-platform packaging scripts (macOS, Linux, Windows).
 
 ## Architecture
 
 - Backend/UI: Flask
+- Internationalization: Flask-Babel/gettext
 - Desktop shell: pywebview
 - Validation engine: packtools
 - XML parsing: lxml
@@ -82,6 +84,7 @@ Relevant modules:
 Runtime dependencies are defined in `pyproject.toml`, including:
 
 - Flask
+- Flask-Babel
 - lxml
 - pywebview
 - packtools
@@ -153,17 +156,30 @@ Custom host/port:
 spsvalidator --browser --host 0.0.0.0 --port 8000
 ```
 
-### Select language in UI
+### Interface language
 
-Use route pattern:
+The language is selected automatically. Desktop mode uses the operating system
+locale. Browser mode uses the `Accept-Language` header sent by the browser.
+Unsupported or missing locales fall back to Portuguese.
 
-- `/language/pt`
-- `/language/en`
-- `/language/es`
+Translations use gettext catalogs in
+`src/spsvalidator/translations/<locale>/LC_MESSAGES/messages.po`.
 
-Example:
+To extract new messages and update the catalogs:
 
-- `http://127.0.0.1:5000/language/en`
+```bash
+pybabel extract -F babel.cfg --project=spsvalidator --version=0.0.1 -o messages.pot .
+pybabel update -i messages.pot -d src/spsvalidator/translations
+```
+
+After editing the `.po` files, compile them for local development:
+
+```bash
+pybabel compile -d src/spsvalidator/translations
+```
+
+Package builds compile the `.mo` catalogs automatically. The generated `.mo`
+files are not versioned.
 
 ### CSV report download (web endpoint)
 
@@ -256,11 +272,11 @@ pytest
 Current tests cover:
 
 - Validation service behavior and status computation
-- Web routes (upload, validation, CSV download, language switch)
+- Web routes (upload, validation, CSV download, automatic locale selection)
 - Desktop CSV save API
 - CSV export format
 - Metadata extraction
-- i18n normalization and translations
+- i18n normalization and gettext catalogs
 - Version consistency with `pyproject.toml`
 - Integration execution with packtools on fixture package
 
