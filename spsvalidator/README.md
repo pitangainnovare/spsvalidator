@@ -50,7 +50,7 @@ Validation results are persisted locally and can be reopened later in the UI.
   - Portuguese (`pt`, default)
   - English (`en`)
   - Spanish (`es`)
-- Language persistence via cookie.
+- Automatic language selection from the browser preference in browser mode, or directly from the operating system preference in desktop mode. A manual selection is persisted in the local SQLite database and takes precedence over automatic detection in both modes of the same installation.
 - Build metadata footer (development/runtime or macOS build version label).
 - Cross-platform packaging scripts (macOS, Linux, Windows).
 
