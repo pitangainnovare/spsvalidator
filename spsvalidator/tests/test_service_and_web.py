@@ -129,10 +129,82 @@ def test_set_language_switches_ui_text(tmp_path):
     client = app.test_client()
     response = client.get("/language/en")
     assert response.status_code == 302
-    home = client.get("/", headers={"Cookie": "lang=en"})
+
+    reopened_app = create_app(str(tmp_path))
+    home = reopened_app.test_client().get(
+        "/", headers={"Accept-Language": "pt-BR"}
+    )
     html = home.get_data(as_text=True)
     assert "SPS package validation" in html
     assert "Built for macOS" in html or "Development build" in html
+
+
+def test_index_uses_accept_language_when_no_manual_selection(tmp_path):
+    app = create_app(str(tmp_path), system_language="pt_BR")
+    client = app.test_client()
+
+    responses = (
+        client.get("/", headers={"Accept-Language": "en-US,en;q=0.9"}),
+        client.get("/", headers={"Accept-Language": "es-ES,es;q=0.9"}),
+    )
+
+    assert responses[0].status_code == 200
+    assert "SPS package validation" in responses[0].get_data(as_text=True)
+    assert responses[1].status_code == 200
+    assert "Validación de paquetes SPS" in responses[1].get_data(as_text=True)
+
+
+def test_index_uses_desktop_system_language_and_ignores_accept_language(tmp_path):
+    app = create_app(
+        str(tmp_path), execution_mode="desktop", system_language="es_AR"
+    )
+    client = app.test_client()
+
+    response = client.get("/", headers={"Accept-Language": "en-US,en;q=0.9"})
+
+    assert response.status_code == 200
+    assert "Validación de paquetes SPS" in response.get_data(as_text=True)
+
+
+def test_last_language_selection_is_shared_between_execution_modes(tmp_path):
+    browser_app = create_app(str(tmp_path))
+    browser_client = browser_app.test_client()
+    browser_client.get("/language/en")
+    browser_client.get("/language/es")
+
+    desktop_app = create_app(
+        str(tmp_path), execution_mode="desktop", system_language="pt_BR"
+    )
+    response = desktop_app.test_client().get(
+        "/", headers={"Accept-Language": "en-US"}
+    )
+
+    assert response.status_code == 200
+    assert "Validación de paquetes SPS" in response.get_data(as_text=True)
+
+
+def test_index_falls_back_to_portuguese_for_unsupported_languages(tmp_path):
+    app = create_app(
+        str(tmp_path), execution_mode="desktop", system_language="de_DE"
+    )
+    client = app.test_client()
+
+    response = client.get("/", headers={"Accept-Language": "fr-FR"})
+
+    assert response.status_code == 200
+    assert "Validação de pacotes SPS" in response.get_data(as_text=True)
+
+
+def test_validate_uses_the_same_detected_language_as_the_template(tmp_path):
+    app = create_app(str(tmp_path))
+    client = app.test_client()
+
+    response = client.post("/validate", headers={"Accept-Language": "es-ES"})
+    html = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert "Validación de paquetes SPS" in html
+    assert "Seleccione un archivo .zip para validar." in html
 
 
 def test_validate_route_processes_upload(monkeypatch, tmp_path):

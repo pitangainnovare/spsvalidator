@@ -7,6 +7,7 @@ from flask import (
     Blueprint,
     abort,
     current_app,
+    g,
     make_response,
     redirect,
     render_template,
@@ -15,7 +16,11 @@ from flask import (
     url_for,
 )
 
-from spsvalidator.db.repository import get_validation_details, list_validations
+from spsvalidator.db.repository import (
+    get_validation_details,
+    list_validations,
+    set_setting,
+)
 from spsvalidator.domain.export import build_validation_csv
 from spsvalidator.services.validation_service import run_validation
 from spsvalidator.web.i18n import get_translations, normalize_language
@@ -27,10 +32,6 @@ web_blueprint = Blueprint(
     static_folder="static",
     static_url_path="/static",
 )
-
-
-def _current_translations():
-    return get_translations(normalize_language(request.cookies.get("lang")))
 
 
 def _render_index(**context):
@@ -51,13 +52,6 @@ def _safe_redirect_target(next_url: str | None) -> str:
     return url_for("web.index")
 
 
-def _redirect_with_lang(endpoint: str, **values):
-    response = make_response(redirect(url_for(endpoint, **values)))
-    language = normalize_language(request.cookies.get("lang"))
-    response.set_cookie("lang", language, max_age=60 * 60 * 24 * 365)
-    return response
-
-
 @web_blueprint.get("/")
 def index():
     selected_id = request.args.get("history_id")
@@ -71,7 +65,7 @@ def index():
 
 @web_blueprint.post("/validate")
 def validate():
-    translations = _current_translations()
+    translations = get_translations(g.language)
     uploaded_file = request.files.get("package_zip")
     if uploaded_file is None or not uploaded_file.filename:
         return _render_index(
@@ -86,7 +80,7 @@ def validate():
         )
     except Exception as exc:
         return _render_index(latest_result=None, error_message=str(exc))
-    return _redirect_with_lang("web.index", history_id=result["history_id"])
+    return redirect(url_for("web.index", history_id=result["history_id"]))
 
 
 @web_blueprint.get("/validation/<history_id>/report.csv")
@@ -109,9 +103,8 @@ def download_csv(history_id: str):
 def set_language(language_code: str):
     language = normalize_language(language_code)
     redirect_target = _safe_redirect_target(request.args.get("next"))
-    response = make_response(redirect(redirect_target))
-    response.set_cookie("lang", language, max_age=60 * 60 * 24 * 365)
-    return response
+    set_setting(current_app.config["DB_PATH"], "language", language)
+    return redirect(redirect_target)
 
 
 @web_blueprint.get("/favicon.ico")
