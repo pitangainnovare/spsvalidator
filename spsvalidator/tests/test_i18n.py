@@ -1,14 +1,30 @@
-from spsvalidator.web.i18n import get_translations, normalize_language
+from pathlib import Path
+
+from babel.messages.pofile import read_po
+
+from spsvalidator.web import i18n
 
 
-def test_normalize_language_defaults_to_portuguese():
-    assert normalize_language(None) == "pt"
-    assert normalize_language("en-US") == "en"
-    assert normalize_language("xx") == "pt"
+def test_normalize_language_handles_system_locale():
+    assert i18n.normalize_language("pt_BR") == "pt"
+    assert i18n.normalize_language("en-US") == "en"
+    assert i18n.normalize_language("es_AR") == "es"
+    assert i18n.normalize_language("de_DE") is None
+    assert i18n.normalize_language(None) is None
 
 
-def test_translations_available_for_all_languages():
-    for language in ("pt", "en", "es"):
-        translations = get_translations(language)
-        assert translations["validate_package"]
-        assert translations["footer_built_for_macos"]
+def test_gettext_catalogs_exist_for_all_supported_languages():
+    translations_dir = (
+        Path(__file__).resolve().parents[1] / "src" / "spsvalidator" / "translations"
+    )
+    for language in i18n.SUPPORTED_LANGUAGES:
+        catalog_dir = translations_dir / language / "LC_MESSAGES"
+        assert (catalog_dir / "messages.po").is_file()
+
+    with (translations_dir / "en" / "LC_MESSAGES" / "messages.po").open(
+        encoding="utf-8"
+    ) as catalog:
+        translations = read_po(catalog)
+    assert translations.get("Validação de pacotes SPS").string == (
+        "SPS package validation"
+    )

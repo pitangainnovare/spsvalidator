@@ -6,6 +6,7 @@ cd "$ROOT_DIR"
 
 python -m pip install -e ".[dev]"
 python -m pip install pyinstaller
+pybabel compile -d src/spsvalidator/translations
 bash packaging/generate_icns.sh
 bash packaging/generate_build_info.sh
 pyinstaller --noconfirm --windowed \

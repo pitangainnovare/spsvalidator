@@ -1,6 +1,6 @@
 
 <!doctype html>
-<html lang="{{ t.html_lang }}">
+<html lang="{{ current_locale }}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -41,27 +41,6 @@
       }
       .app-header h1 { margin: 0; font-size: 1.5rem; }
       .app-header p { margin: 4px 0 0 0; }
-      .lang-selector {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .lang-option {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        text-decoration: none;
-        font-size: 1.25rem;
-        background: #fff;
-      }
-      .lang-option.active {
-        border-color: #333;
-        box-shadow: inset 0 0 0 1px #333;
-      }
       .content { flex: 1; }
       .panel { border: 1px solid #ccc; border-radius: 8px; padding: 14px; margin-bottom: 16px; }
       table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -97,26 +76,17 @@
         />
         <div>
           <h1>{{ app_display_name }}</h1>
-          <p class="muted">{{ t.subtitle }}</p>
+          <p class="muted">{{ _("Validação de pacotes SPS") }}</p>
         </div>
       </header>
-      <div class="lang-selector" aria-label="Language">
-        {% for option in language_options %}
-        <a
-          href="{{ url_for('web.set_language', language_code=option.code, next=request.full_path) }}"
-          class="lang-option{% if current_language == option.code %} active{% endif %}"
-          title="{{ option.label }}"
-        >{{ option.flag }}</a>
-        {% endfor %}
-      </div>
     </div>
 
     <main class="content">
       <section class="panel">
-        <h2>{{ t.validate_package }}</h2>
+        <h2>{{ _("Validar pacote SPS") }}</h2>
         <form method="post" action="/validate" enctype="multipart/form-data">
           <input type="file" name="package_zip" accept=".zip" required />
-          <button type="submit">{{ t.validate }}</button>
+          <button type="submit">{{ _("Validar") }}</button>
         </form>
         {% if error_message %}
         <p class="error">{{ error_message }}</p>
@@ -124,19 +94,19 @@
       </section>
 
       <section class="panel">
-        <h2>{{ t.validated_packages }}</h2>
+        <h2>{{ _("Pacotes validados") }}</h2>
         {% if history_items %}
         <table>
           <thead>
             <tr>
-              <th>{{ t.date }}</th>
-              <th>{{ t.package }}</th>
-              <th>{{ t.xmls }}</th>
-              <th>{{ t.critical }}</th>
-              <th>{{ t.error }}</th>
-              <th>{{ t.warning }}</th>
-              <th>{{ t.exceptions }}</th>
-              <th>{{ t.download_csv }}</th>
+              <th>{{ _("Data") }}</th>
+              <th>{{ _("Pacote") }}</th>
+              <th>{{ _("XMLs") }}</th>
+              <th>{{ _("CRITICAL") }}</th>
+              <th>{{ _("ERROR") }}</th>
+              <th>{{ _("WARNING") }}</th>
+              <th>{{ _("Exceptions") }}</th>
+              <th>{{ _("Relatório") }}</th>
             </tr>
           </thead>
           <tbody>
@@ -156,31 +126,31 @@
                   data-history-id="{{ item.id }}"
                   data-download-url="{{ url_for('web.download_csv', history_id=item.id) }}"
                   data-download-filename="{{ item.package_name.rsplit('.', 1)[0] }}.validation.csv"
-                >{{ t.download_csv }}</a>
+                >{{ _("Relatório") }}</a>
               </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
         {% else %}
-        <p class="muted">{{ t.no_packages_yet }}</p>
+        <p class="muted">{{ _("Nenhum pacote validado ainda.") }}</p>
         {% endif %}
         <p id="download-feedback" class="download-feedback" hidden></p>
       </section>
 
       {% if latest_result %}
       <section class="panel">
-        <h2>{{ t.validation_result }}</h2>
+        <h2>{{ _("Artigos Considerados") }}</h2>
         <div class="articles">
           <table>
             <thead>
               <tr>
-                <th>{{ t.xml_file }}</th>
-                <th>{{ t.title }}</th>
-                <th>{{ t.authors }}</th>
+                <th>{{ _("Arquivo XML") }}</th>
+                <th>{{ _("Título") }}</th>
+                <th>{{ _("Autores") }}</th>
                 <th>DOI</th>
                 <th>PID</th>
-                <th>{{ t.status }}</th>
+                <th>{{ _("Status") }}</th>
               </tr>
             </thead>
             <tbody>
@@ -206,8 +176,8 @@
       <p class="muted">{{ footer_build_label }}</p>
     </footer>
     <script>
-      var csvSavedTemplate = {{ t.csv_saved|tojson }};
-      var csvFailedMessage = {{ t.csv_download_failed|tojson }};
+      var csvSavedTemplate = {{ _("Arquivo salvo em {path}")|tojson }};
+      var csvFailedMessage = {{ _("Falha ao baixar CSV.")|tojson }};
 
       function showDownloadFeedback(message, isError) {
         var feedback = document.getElementById("download-feedback");

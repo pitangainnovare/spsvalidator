@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import locale
 import socket
 import threading
 import time
@@ -32,10 +33,13 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=0)
     args = parser.parse_args()
 
-    app = create_app()
     if args.browser:
+        app = create_app(execution_mode="browser")
         app.run(host=args.host, port=args.port or 5000, debug=False)
         return
+
+    system_language = locale.getlocale()[0]
+    app = create_app(execution_mode="desktop", system_language=system_language)
 
     db_path = app.config["DB_PATH"]
     host = args.host

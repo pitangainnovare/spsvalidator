@@ -2,6 +2,8 @@ import io
 import zipfile
 from pathlib import Path
 
+import pytest
+
 from spsvalidator.app import create_app
 from spsvalidator.services import validation_service
 
@@ -124,15 +126,90 @@ def test_validate_route_shows_error_on_failure(monkeypatch, tmp_path):
     assert "validation failed" in html
 
 
-def test_set_language_switches_ui_text(tmp_path):
-    app = create_app(str(tmp_path))
+@pytest.mark.parametrize(
+    ("accept_language", "expected"),
+    [
+        ("pt-BR,pt;q=0.9", "Validação de pacotes SPS"),
+        ("en-US,en;q=0.9", "SPS package validation"),
+        ("es-AR,es;q=0.9", "Validación de paquetes SPS"),
+    ],
+)
+def test_browser_uses_accept_language(tmp_path, accept_language, expected):
+    app = create_app(str(tmp_path), execution_mode="browser")
     client = app.test_client()
-    response = client.get("/language/en")
-    assert response.status_code == 302
-    home = client.get("/", headers={"Cookie": "lang=en"})
-    html = home.get_data(as_text=True)
-    assert "SPS package validation" in html
-    assert "Built for macOS" in html or "Development build" in html
+    response = client.get("/", headers={"Accept-Language": accept_language})
+
+    assert expected in response.get_data(as_text=True)
+
+
+@pytest.mark.parametrize(
+    ("system_language", "expected", "unexpected"),
+    [
+        ("pt_BR", "Validação de pacotes SPS", "SPS package validation"),
+        ("en_US", "SPS package validation", "Validação de pacotes SPS"),
+        ("es_AR", "Validación de paquetes SPS", "SPS package validation"),
+    ],
+)
+def test_desktop_uses_system_language(
+    tmp_path,
+    system_language,
+    expected,
+    unexpected,
+):
+    app = create_app(
+        str(tmp_path),
+        execution_mode="desktop",
+        system_language=system_language,
+    )
+    response = app.test_client().get(
+        "/",
+        headers={"Accept-Language": "en-US"},
+    )
+    html = response.get_data(as_text=True)
+
+    assert expected in html
+    assert unexpected not in html
+
+
+@pytest.mark.parametrize(
+    ("execution_mode", "system_language", "headers"),
+    [
+        ("desktop", "de_DE", {"Accept-Language": "en-US"}),
+        ("desktop", None, {"Accept-Language": "es-AR"}),
+        ("browser", None, {"Accept-Language": "de-DE"}),
+        ("browser", None, {}),
+    ],
+)
+def test_unsupported_or_missing_locale_falls_back_to_portuguese(
+    tmp_path,
+    execution_mode,
+    system_language,
+    headers,
+):
+    app = create_app(
+        str(tmp_path),
+        execution_mode=execution_mode,
+        system_language=system_language,
+    )
+    response = app.test_client().get("/", headers=headers)
+    html = response.get_data(as_text=True)
+
+    assert '<html lang="pt">' in html
+    assert "Validação de pacotes SPS" in html
+
+
+def test_python_and_javascript_messages_use_detected_language(tmp_path):
+    app = create_app(str(tmp_path), execution_mode="browser")
+    response = app.test_client().post(
+        "/validate",
+        headers={"Accept-Language": "en-US"},
+    )
+    html = response.get_data(as_text=True)
+
+    assert "Select a .zip file to validate." in html
+    assert "File saved to {path}" in html
+    assert "Failed to download CSV." in html
+    assert "Development build" in html or "Built for macOS" in html
 
 
 def test_validate_route_processes_upload(monkeypatch, tmp_path):
@@ -170,4 +247,3 @@ def test_validate_route_processes_upload(monkeypatch, tmp_path):
     assert "package.zip" in html
     assert "img/icon.png" in html
     assert "SPSValidator-v" in html
-    assert "lang-option" in html
