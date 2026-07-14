@@ -4,6 +4,7 @@ from spsvalidator.web.i18n import get_translations, normalize_language
 def test_normalize_language_defaults_to_portuguese():
     assert normalize_language(None) == "pt"
     assert normalize_language("en-US") == "en"
+    assert normalize_language("es_ES") == "es"
     assert normalize_language("xx") == "pt"
 
 

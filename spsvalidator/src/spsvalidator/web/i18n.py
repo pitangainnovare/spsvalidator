@@ -123,13 +123,32 @@ TRANSLATIONS = {
 }
 
 
-def normalize_language(code: str | None) -> str:
+def normalize_language(code, default="pt"):
     if not code:
-        return "pt"
-    normalized = code.lower().split("-")[0]
+        return default
+
+    normalized = code.lower().replace("_", "-").split("-", 1)[0]
     if normalized in SUPPORTED_LANGUAGES:
         return normalized
-    return "pt"
+
+    return default
+
+
+def detect_request_language(
+    request,
+    execution_mode="browser",
+    system_language=None,
+    preferred_language=None,
+):
+    persisted_language = normalize_language(preferred_language, None)
+    if persisted_language:
+        return persisted_language
+
+    if execution_mode == "browser":
+        browser_language = request.accept_languages.best_match(SUPPORTED_LANGUAGES)
+        return normalize_language(browser_language)
+
+    return normalize_language(system_language)
 
 
 def get_translations(language: str) -> dict[str, str]:
