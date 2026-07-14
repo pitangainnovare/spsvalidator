@@ -1,0 +1,119 @@
+# Portuguese translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: spsvalidator 0.0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-14 10:59-0300\n"
+"PO-Revision-Date: 2026-07-14 10:59-0300\n"
+"Last-Translator: SciELO\n"
+"Language: pt\n"
+"Language-Team: pt <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: src/spsvalidator/build_metadata.py:16 src/spsvalidator/build_metadata.py:26
+#, python-format
+msgid "Compilado para macOS %(version)s"
+msgstr ""
+
+#: src/spsvalidator/build_metadata.py:28
+#, python-format
+msgid "Build de desenvolvimento (%(platform)s)"
+msgstr ""
+
+#: src/spsvalidator/web/routes.py:56
+msgid "Selecione um arquivo .zip para validar."
+msgstr ""
+
+#: src/spsvalidator/web/routes.py:62
+msgid "Apenas arquivos .zip SPS são suportados."
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:79
+msgid "Validação de pacotes SPS"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:86
+msgid "Validar pacote SPS"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:89
+msgid "Validar"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:97
+msgid "Pacotes validados"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:102
+msgid "Data"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:103
+msgid "Pacote"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:104
+msgid "XMLs"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:105
+msgid "CRITICAL"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:106
+msgid "ERROR"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:107
+msgid "WARNING"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:108
+msgid "Exceptions"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:109
+#: src/spsvalidator/web/templates/index.html:129
+msgid "Relatório"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:136
+msgid "Nenhum pacote validado ainda."
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:143
+msgid "Artigos Considerados"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:148
+msgid "Arquivo XML"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:149
+msgid "Título"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:150
+msgid "Autores"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:153
+msgid "Status"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:179
+#, python-brace-format
+msgid "Arquivo salvo em {path}"
+msgstr ""
+
+#: src/spsvalidator/web/templates/index.html:180
+msgid "Falha ao baixar CSV."
+msgstr ""
