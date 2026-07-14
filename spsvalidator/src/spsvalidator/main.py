@@ -5,6 +5,7 @@ import locale
 import socket
 import threading
 import time
+from pathlib import Path
 from wsgiref.simple_server import make_server
 
 import webview
